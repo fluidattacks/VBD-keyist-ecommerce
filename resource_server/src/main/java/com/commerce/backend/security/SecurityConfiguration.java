@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
 
 
 @EnableWebSecurity
+@org.springframework.context.annotation.PropertySource("classpath:runtime.properties")
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -33,21 +34,22 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         );
     }
 
-    @Override
-    public void configure(final HttpSecurity http) throws Exception {
-        http.cors().and()
-                .csrf().disable()
-                .authorizeRequests()
-                .antMatchers(securityConstants.getWhitelist()).permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .opaqueToken(opaqueToken -> opaqueToken
-                                .introspector(introspector())
-                        )
-                );
-    }
+@Override
+public void configure(final HttpSecurity http) throws Exception {
+    http.cors().and()
+            .csrf().disable()
+            .authorizeRequests()
+            .requestMatchers(org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest.toAnyEndpoint().excluding("httpexchanges")).permitAll()
+            .antMatchers(securityConstants.getWhitelist()).permitAll()
+            .anyRequest().authenticated()
+            .and()
+            .sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
+            .oauth2ResourceServer(oauth2 -> oauth2
+                    .opaqueToken(opaqueToken -> opaqueToken
+                            .introspector(introspector())
+                    )
+            );
+}
 }
