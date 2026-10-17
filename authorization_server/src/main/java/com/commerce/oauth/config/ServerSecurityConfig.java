@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHand
 
 @Configuration
 @Order(SecurityProperties.BASIC_AUTH_ORDER)
+@org.springframework.context.annotation.PropertySource("classpath:tuning.properties")
 public class ServerSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -40,6 +41,7 @@ public class ServerSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
         http.authorizeRequests()
+                .requestMatchers(org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest.toAnyEndpoint().excluding("metrics")).permitAll()
                 .antMatchers(HttpMethod.POST, "/ouath/token").permitAll()
                 .anyRequest().authenticated()
                 .and().exceptionHandling().accessDeniedHandler(new OAuth2AccessDeniedHandler())
